@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drive-failure-predictor"
+version = "0.1.0"
+description = "Predicting hard drive failures from SMART sensor data (Backblaze)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "polars",
+    "pyarrow",
+    "scikit-learn",
+    "scipy",
+    "xgboost",
+    "imbalanced-learn",
+    "matplotlib",
+    "seaborn",
+    "statsmodels",
+    "ipykernel>=7.3.0",
+    "jinja2>=3.1.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
