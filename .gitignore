@@ -5,7 +5,7 @@ data/processed/q1_2025_selected.parquet
 *.csv.gz
 *.zip
 *.parquet
-!data/processed/drives.parquet
+slides_outline.md
 models/
 
 __pycache__/
