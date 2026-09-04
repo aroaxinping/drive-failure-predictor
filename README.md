@@ -116,15 +116,19 @@ This project uses [uv](https://docs.astral.sh/uv/).
 ```bash
 uv sync
 
-# the drive-level dataset is already in the repo (data/processed/drives.parquet)
-# to rebuild it from the raw Backblaze data:
+# build the drive-level dataset from raw Backblaze data:
 # 1. download a quarter from https://www.backblaze.com/cloud-storage/resources/hard-drive-test-data
-# 2. convert it to parquet in data/processed/q1_2025_selected.parquet
-# 3. run:
+# 2. extract CSVs into data/raw/data_Q1_2025/
+# 3. convert to parquet:
+uv run python scripts/raw_to_parquet.py
+# 4. aggregate to drive level:
 uv run python scripts/build_drive_dataset.py
 
 # run the notebooks
 uv run jupyter notebook
+
+# score an individual drive (demo)
+uv run python scripts/predict.py <serial_number>
 ```
 
 ## Key SMART attributes
@@ -154,6 +158,24 @@ In short: polars where memory efficiency matters (data engineering), pandas wher
 - **Survivorship bias.** Drives that were replaced or decommissioned before Q1 2025 are not in the dataset. The model only sees drives that were active during the quarter.
 - **Class imbalance.** Only 0.335% of drives failed. This requires careful handling (SMOTE, class weights, appropriate metrics) and means the model will always trade off between recall (catching failures) and precision (avoiding false alarms).
 - **No external factors.** The model uses only SMART data and drive metadata. It does not account for temperature, workload, rack position, or power supply quality, all of which influence failure rates.
+
+## Next steps
+
+### Fix temporal generalization
+
+The immediate priority. The current pipeline aggregates features over the full observation period, making them dependent on window length. Three approaches:
+
+1. **Fixed-length rolling windows** — always aggregate the last 30 days of readings regardless of total observation time. This makes `days_observed`, `std`, and slope features comparable across any time period.
+2. **Multi-quarter training** — train on Q1–Q3, validate on Q4. More failure examples and seasonal variation stabilise the decision boundary.
+3. **Normalize by window length** — divide `std` and slope features by `days_observed` to make them scale-invariant. Quick fix, but rolling windows are more robust.
+
+### Add value in production
+
+4. **Real-time scoring pipeline** — `smartmontools` reads SMART sensors daily → model scores each drive → alerts in Grafana/PagerDuty → ops schedules proactive replacement in the next maintenance window. Estimated deployment: one cronjob + a dashboard.
+5. **Per-model failure profiles** — different drive models (Seagate ST8000, WDC Ultrastar) have different degradation patterns. Training separate models or adding model-specific features could improve recall on less common drives.
+6. **Remaining Useful Life (RUL) estimation** — instead of binary fail/healthy, predict *when* the drive will fail. This enables smarter scheduling: replace drives predicted to fail in <7 days first, defer those with months left.
+7. **Cost-sensitive threshold in production** — the optimal threshold (0.04) should be tuned on a validation set separate from test, and adjusted per datacenter based on local replacement costs and SLA penalties.
+8. **External factors** — correlate SMART data with temperature sensors, workload metrics (IOPS, throughput), rack position, and power supply quality. These environmental factors influence failure rates but are not captured in SMART alone.
 
 ## Data source
 

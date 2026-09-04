@@ -6,6 +6,12 @@ data/processed/q1_2025_selected.parquet
 *.zip
 *.parquet
 slides_outline.md
+slides_texto.md
+presentacion.pptx
+generate_slides.js
+node_modules/
+package.json
+package-lock.json
 models/
 
 __pycache__/
