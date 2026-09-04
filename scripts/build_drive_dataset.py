@@ -116,6 +116,7 @@ def main():
         pl.col("model").last().alias("model"),
         pl.col("date").count().alias("days_observed"),
         (pl.col("date").max() - pl.col("date").min()).dt.total_days().alias("drive_age_days"),
+        pl.col("date").max().alias("last_date"),
     ])
 
     print("Aggregating to drive level (stats)...")
