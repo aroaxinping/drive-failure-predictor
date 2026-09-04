@@ -54,17 +54,55 @@ drive-failure-predictor/
 ├── notebooks/
 │   ├── 01_eda.ipynb                 # exploratory data analysis
 │   ├── 02_feature_engineering.ipynb # feature selection, scaling, baseline model
-│   ├── 03_modeling.ipynb
-│   └── 04_tuning_ensemble.ipynb
+│   ├── 03_modeling.ipynb            # RF, AdaBoost, SMOTE, imbalance strategies
+│   └── 04_tuning_ensemble.ipynb     # XGBoost tuning, stacking, critical analysis
 ├── src/
 │   ├── data_prep.py                 # dataset loading
 │   ├── features.py                  # SMART constants and manufacturer extraction
 │   └── model.py                     # training and evaluation utilities
 ├── models/                          # saved models and scalers (.gitignore'd)
 ├── scripts/
-│   └── build_drive_dataset.py       # polars pipeline: daily → drive-level
+│   ├── build_drive_dataset.py       # polars pipeline: daily → drive-level
+│   └── export_figures.py            # generate presentation figures from models
 └── figures/                         # exported visualizations
 ```
+
+## Results
+
+| Model | F1 | Precision | Recall | ROC AUC |
+|---|---|---|---|---|
+| Logistic Regression (baseline) | 0.1347 | 0.08 | 0.87 | 0.9678 |
+| Random Forest (class_weight) | 0.9549 | 0.97 | 0.94 | 0.9976 |
+| AdaBoost | 0.9140 | 0.89 | 0.94 | 0.9919 |
+| XGBoost (baseline) | 0.9577 | 0.96 | 0.96 | 0.9954 |
+| **XGBoost (tuned)** | **0.9602** | **0.96** | **0.96** | **0.9954** |
+| Stacking (RF + XGB → LR) | 0.9052 | 0.84 | 0.99 | 0.9955 |
+
+The best model is XGBoost tuned via `RandomizedSearchCV` (30 iterations, 5-fold stratified CV). The difference with RF balanced is ~1–2 drives on 213 test failures — not statistically significant, but XGBoost generalises slightly better.
+
+### Class imbalance strategies
+
+| Strategy | F1 | Notes |
+|---|---|---|
+| class_weight="balanced" | 0.9549 | Built into the loss function — no resampling needed |
+| SMOTE (oversampling) | 0.9506 | Generates synthetic minority samples |
+| Tomek links (frontier cleaning) | 0.9551 | Removes 58 ambiguous majority samples |
+| SMOTETomek (combined) | 0.9484 | Oversample + clean |
+| RandomUnderSampler | 0.6055 | Discards 99% of majority — too aggressive |
+
+Reweighting (`class_weight` / `scale_pos_weight`) matches or beats resampling with zero data manipulation.
+
+### Figures
+
+All figures are in `figures/` and generated from the trained models via `scripts/export_figures.py`:
+
+- `model_comparison.png` — F1 scores across all models
+- `roc_pr_curves.png` — ROC and Precision-Recall curves overlaid
+- `feature_importance_xgb.png` — top 15 features by XGBoost gain (slopes highlighted)
+- `confusion_matrix_xgb.png` — confusion matrix of the best model
+- `imbalance_strategies.png` — comparison of 5 class imbalance strategies
+- `class_distribution.png` — train/test class distribution
+- `target_distribution.png`, `feature_correlation.png`, `smart_slopes.png` — from EDA notebooks
 
 ## How to run
 

@@ -6,7 +6,6 @@ data/processed/q1_2025_selected.parquet
 *.zip
 *.parquet
 !data/processed/drives.parquet
-data/processed/feature_selection.json
 models/
 
 __pycache__/
