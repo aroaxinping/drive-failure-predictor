@@ -66,7 +66,8 @@ drive-failure-predictor/
 │   ├── raw_to_parquet.py            # raw Backblaze CSVs → parquet
 │   ├── export_figures.py            # generate presentation figures from models
 │   ├── predict.py                   # CLI inference script for individual drives
-│   └── temporal_validation.py       # train Jan-Feb, test March (distribution shift analysis)
+│   ├── temporal_validation.py       # train Jan-Feb, test March (distribution shift analysis)
+│   └── temporal_improvements.py     # rolling window + normalization fixes
 └── figures/                         # exported visualizations
 ```
 
@@ -107,6 +108,7 @@ All figures are in `figures/` and generated from the trained models via `scripts
 - `class_distribution.png` — train/test class distribution
 - `cost_sensitive_threshold.png` — cost vs threshold curve (optimal at 0.040)
 - `temporal_validation.png` — random vs temporal split comparison with distribution shift analysis
+- `temporal_improvements.png` — rolling window fix: F1 0.003→0.77 on temporal split
 - `target_distribution.png`, `feature_correlation.png`, `smart_slopes.png` — from EDA notebooks
 
 ## How to run
@@ -154,7 +156,7 @@ In short: polars where memory efficiency matters (data engineering), pandas wher
 ## Scope and limitations
 
 - **Single quarter.** The model is trained on Q1 2025 only. Failure patterns may differ across seasons, drive batches, or firmware versions. A production system would train on multiple quarters.
-- **Temporal validation reveals distribution shift.** Training on Jan-Feb data and testing on March produces F1 ≈ 0, but AUC-ROC = 0.82 — the model *has* learned discriminative signal, but the decision boundary doesn't transfer. Root cause: aggregating over 59 days (Jan-Feb) vs 31 days (March) shifts `days_observed`, `std`, and slope features. Production fix: use fixed-length rolling windows (e.g. always last 30 days) and multi-quarter training data.
+- **Temporal validation: fixed with rolling windows.** Full-period aggregation (59 vs 31 days) caused distribution shift → F1 ≈ 0. Fixed by using rolling windows of 30 days: **F1 = 0.77, AUC-ROC = 0.99, recall = 89%** on the temporal split (train Jan-Feb, test March). The model generalises across time when features are computed over equal-length windows. Remaining gap vs random split (0.96) is expected — temporal is harder, and multi-quarter training would close it further.
 - **Survivorship bias.** Drives that were replaced or decommissioned before Q1 2025 are not in the dataset. The model only sees drives that were active during the quarter.
 - **Class imbalance.** Only 0.335% of drives failed. This requires careful handling (SMOTE, class weights, appropriate metrics) and means the model will always trade off between recall (catching failures) and precision (avoiding false alarms).
 - **No external factors.** The model uses only SMART data and drive metadata. It does not account for temperature, workload, rack position, or power supply quality, all of which influence failure rates.
