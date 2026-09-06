@@ -68,6 +68,7 @@ drive-failure-predictor/
 │   ├── predict.py                   # CLI inference script for individual drives
 │   ├── temporal_validation.py       # train Jan-Feb, test March (distribution shift analysis)
 │   └── temporal_improvements.py     # rolling window + normalization fixes
+├── slides/                          # business pitch deck (Sep 2026)
 └── figures/                         # exported visualizations
 ```
 
