@@ -1,10 +1,10 @@
-data/raw/
+data/raw/*
+!data/raw/README.md
 data/processed/q1_2025_selected.parquet
 
 *.csv
 *.csv.gz
 *.zip
-*.parquet
 slides_outline.md
 slides_texto.md
 presentacion.pptx
