@@ -23,10 +23,8 @@ import polars as pl
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import seaborn as sns
 import joblib
 from pathlib import Path
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     classification_report, confusion_matrix, f1_score,
     roc_auc_score, average_precision_score, precision_recall_curve,

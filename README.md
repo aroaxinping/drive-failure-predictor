@@ -48,9 +48,11 @@ drive-failure-predictor/
 ├── README.md
 ├── pyproject.toml
 ├── data/
-│   ├── raw/                         # Backblaze source data (.gitignore'd)
+│   ├── raw/
+│   │   └── README.md                # download instructions for Backblaze data
 │   └── processed/
-│       └── drives.parquet           # drive-level aggregated dataset (32 MB)
+│       ├── drives.parquet           # drive-level aggregated dataset (30 MB)
+│       └── feature_selection.json   # VIF and correlation analysis output
 ├── notebooks/
 │   ├── 01_eda.ipynb                 # exploratory data analysis
 │   ├── 02_feature_engineering.ipynb # feature selection, scaling, baseline model

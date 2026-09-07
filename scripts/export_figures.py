@@ -1,6 +1,6 @@
 """Export presentation-ready figures from trained models."""
 
-import json, os, sys
+import json, os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -161,8 +161,6 @@ def fig_feature_importance(model, top_n=15):
 
 def fig_imbalance_strategies(y_test, y_train, X_train, X_test, feature_cols):
     """Compare class imbalance handling strategies."""
-    from sklearn.ensemble import RandomForestClassifier
-
     strategies = {
         "class_weight": 0.9549,
         "SMOTE": 0.9506,

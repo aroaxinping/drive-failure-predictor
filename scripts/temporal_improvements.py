@@ -15,7 +15,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     classification_report, f1_score,
     roc_auc_score, average_precision_score, precision_recall_curve,

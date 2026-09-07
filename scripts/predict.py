@@ -12,7 +12,6 @@ instead of the static parquet — the interface stays the same.
 """
 
 import json, sys
-import numpy as np
 import pandas as pd
 import joblib
 from pathlib import Path
