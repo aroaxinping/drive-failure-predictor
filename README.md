@@ -97,7 +97,7 @@ The best model is XGBoost tuned via `RandomizedSearchCV` (30 iterations, 5-fold 
 | SMOTETomek (combined) | 0.9484 | Oversample + clean |
 | RandomUnderSampler | 0.6055 | Discards 99% of majority — too aggressive |
 
-Reweighting (`class_weight` / `scale_pos_weight`) matches or beats resampling with zero data manipulation.
+Reweighting (`class_weight` / `scale_pos_weight`) matches or beats resampling with zero data manipulation. The final model uses `scale_pos_weight` only. SMOTE, Tomek links and undersampling were tested for comparison but not used in the final pipeline.
 
 ### Figures
 
